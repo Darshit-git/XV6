@@ -316,6 +316,44 @@ wait(void)
   }
 }
 
+//DEFAULT////
+/*void
+scheduler(void)
+{
+  struct proc *p;
+  struct cpu *c = mycpu();
+  c->proc = 0;
+  
+  for(;;){
+    // Enable interrupts on this processor.
+    sti();
+
+    // Loop over process table looking for process to run.
+    acquire(&ptable.lock);
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != RUNNABLE)
+        continue;
+
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+
+      swtch(&(c->scheduler), p->context);
+      switchkvm();
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+    }
+    release(&ptable.lock);
+
+  }
+}*/
+
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -362,10 +400,33 @@ if(p->state!=RUNNABLE) {
 }
 continue;
 if (min_burst_time==-1){
+  min_burst_time = p->burst_time;
 }
-min_burst_time = p->burst_time;
 else if(p->burst_time < min_burst_time) { min_burst_time = p->burst_time;
 }
+
+    settimequatum(min_burst_time)
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != RUNNABLE)
+        continue;
+
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      if(p->burst_time==min_burst_time)
+      {
+       //  cprintf("process running is = %d\n",p->pid);
+      	 c->proc = p;
+         switchuvm(p);
+         p->state = RUNNING;
+         p->contextCount++;//keeping count of context
+         p->burst_time-=min_burst_time;
+         swtch(&(c->scheduler), p->context);
+         switchkvm();
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+          if(p->bursttime <= 0)c->proc = 0;
+      }
 }*/
 
 /*void
